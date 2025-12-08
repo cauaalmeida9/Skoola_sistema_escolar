@@ -1,14 +1,12 @@
 <template>
   <div class="login-container">
-
-    <!-- Área do formulário -->
     <div class="login-form-area">
       <div class="form-box">
         <h1 class="logo-modern">Skoola</h1>
 
         <div class="input-group">
-          <input type="text" placeholder="Digite o seu login">
-          <input type="password" placeholder="Digite a sua senha">
+          <input v-model="username" type="text" placeholder="Digite o seu login">
+          <input v-model="password" type="password" placeholder="Digite a sua senha">
         </div>
 
         <a href="#" class="forgot-password">Esqueceu a senha?</a>
@@ -17,11 +15,9 @@
       </div>
     </div>
 
-    <!-- Área visual -->
     <div class="login-branding-area">
       <h1 class="branding-text">Skoola</h1>
     </div>
-
   </div>
 </template>
 
@@ -30,10 +26,16 @@ import { useAuthStore } from '@/stores/auth'
 
 export default {
   name: "TelaLogin",
+  data() {
+    return {
+      username: '',
+      password: ''
+    }
+  },
   methods: {
     handleLogin() {
       const authStore = useAuthStore()
-      authStore.login()
+      authStore.login(this.username, this.password)
     }
   }
 }

@@ -35,7 +35,7 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <!-- 🟢 Botão WhatsApp -->
+
     <div class="zap-container">
       <a 
         href="https://wa.me/5599999999999" 
@@ -58,16 +58,16 @@ const search = ref("");
 
 const faqList = ref([
   {
-    pergunta: "Preciso de um CNPJ para começar a alugar?",
-    resposta: "Não, você não precisa de CNPJ para utilizar o sistema."
+    pergunta: "o sistema é intuitivo?",
+    resposta: "Sim, diferente de nossos concorrentes, buscamos uma interface mais limpa e intuitiva, onde além de resumido ele deixa bem intuitivo as funções e auxilia tbm para quem tem dificuldade em mexer com tecnologia conseguir pega o jeito rápido."
   },
   {
     pergunta: "Como entro em contato com o suporte?",
     resposta: "Você pode falar conosco pelo WhatsApp, e-mail ou chat."
   },
   {
-    pergunta: "É fácil de customizar?",
-    resposta: "Sim! Você consegue ajustar tudo rapidamente."
+    pergunta: "o Skola é confiável?",
+    resposta: "Sim, garantimos a eficiência, seguindo programas conhecidos no mercado que demonstram uma grande integridade."
   },
   {
     pergunta: "O sistema é responsivo?",
@@ -139,7 +139,6 @@ const filteredFaq = computed(() => {
 .faq-panels {
   display: flex;
   flex-direction: column;
-  gap: 14px;
 }
 
 .faq-card {

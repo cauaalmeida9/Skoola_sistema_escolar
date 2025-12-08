@@ -31,9 +31,9 @@ const router = createRouter({
     { path: '/turmas', component: Turmas, meta: { requiresAuth: true }},
     { path: '/turmas/novo', component: NovaTurma, meta: { requiresAuth: true }},
     { path: '/turmas/detalheturma/:registro', component: TurmaDetalhe, meta: { requiresAuth: true }},
-    { path: '/turmas/detalheturma/lancarfrequencia', component: LancarFrquencia, meta: { requiresAuth: true }},
-    { path: '/turmas/detalheturma/lancaratividade', component: LancarAtividade, meta: { requiresAuth: true }},
-    { path: '/turmas/detalheturma/lancarnota', component: LancarNota, meta: { requiresAuth: true }},
+    { path: '/turmas/detalheturma/lancarfrequencia/:registro', name: 'LancarFrequencia', component: LancarFrquencia, meta: { requiresAuth: true }},
+    { path: '/turmas/detalheturma/lancaratividade/:registro', component: LancarAtividade, meta: { requiresAuth: true }},
+    { path: '/turmas/detalheturma/lancarnota/:registro', component: LancarNota, meta: { requiresAuth: true }},
 
     { path: '/professores', component: Professores, meta: { requiresAuth: true }},
     { path: '/professores/novo', component: NovoProfessor, meta: { requiresAuth: true }},

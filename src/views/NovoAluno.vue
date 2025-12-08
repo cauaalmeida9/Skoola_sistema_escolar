@@ -390,60 +390,62 @@ export default {
 };
 </script>
 <style scoped>
-/* Estilo geral da página (similares aos refinados da imagem) */
+/* Estilo geral da página (Desktop) */
 .page-container {
-  padding: 30px;
-  background-color: #f4f5ff; /* Cor de fundo suave */
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+    padding: 30px;
+    background-color: #f4f5ff;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Estilo do cabeçalho */
 .header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 30px;
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 12px 20px;
-  box-shadow: 0px 3px 12px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 12px 20px;
+    box-shadow: 0px 3px 12px rgba(0,0,0,0.08);
 }
 
 .header h2 {
-   font-size: 22px;
-  font-weight: 600;
-  color: #333;
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
 }
 
-/* Contêiner principal do formulário com sombra e borda */
+/* Contêiner principal do formulário */
 .form-container {
-  background: #ffffff;
-  padding: 35px;
-  border-radius: 16px;
-  box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
-  border: 1px solid #e0e0f0;
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0f0;
 }
 
-/* Layout de Duas Colunas Principais (Aluno | Responsáveis) */
+/* Layout de Duas Colunas Principais (Desktop) */
 .main-grid {
     display: grid;
-    grid-template-columns: 1fr 2fr; /* 1 parte para Aluno, 2 partes para Responsáveis */
+    /* Aluno (1 parte) | Responsáveis (2 partes) */
+    grid-template-columns: 1fr 2fr; 
     gap: 30px;
     margin-bottom: 25px;
 }
 
 .aluno-coluna {
-    border-right: 1px solid #f1f1f1; /* Linha divisória sutil */
+    /* Linha divisória sutil para desktop */
+    border-right: 1px solid #f1f1f1; 
     padding-right: 20px;
 }
 
 /* Títulos das Seções */
 .section-title {
-  margin: 0px 0 20px;
-  color: #5A45FF;
-  font-size: 18px;
-  font-weight: 700;
+    margin: 0px 0 20px;
+    color: #5A45FF;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 /* Grid para os campos do Aluno (2 colunas) */
@@ -464,6 +466,10 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    /* Borda sutil para separar visualmente os 2 responsáveis no desktop */
+    border: 1px solid #f0f0f0;
+    padding: 15px;
+    border-radius: 10px;
 }
 
 .observacoes-area {
@@ -472,97 +478,131 @@ export default {
 
 /* Estilo dos campos (Input, Select, Textarea) */
 .form-group {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group.full {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
 label {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 6px;
-  color: #444;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #444;
 }
 
 input, select, textarea {
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fafafa; /* Fundo levemente cinza */
-  font-size: 14px;
-  outline: none;
-  transition: .2s ease;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    font-size: 14px;
+    outline: none;
+    transition: .2s ease;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #5A45FF;
-  box-shadow: 0 0 0 3px rgba(90, 69, 255, 0.15); /* Sombra suave no foco */
+    border-color: #5A45FF;
+    box-shadow: 0 0 0 3px rgba(90, 69, 255, 0.15);
 }
 
 /* Estilo de erro */
 input.error, select.error, textarea.error {
-  border: 2px solid #ff3b3b !important;
-  background: #fff4f4;
+    border: 2px solid #ff3b3b !important;
+    background: #fff4f4;
 }
 
 .error-message {
-  margin-top: 4px;
-  color: #ff3b3b;
-  font-size: 12px;
-  font-weight: 600;
+    margin-top: 4px;
+    color: #ff3b3b;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 /* Botão de Submissão */
 .btn-submit {
-  margin-top: 20px;
-  padding: 16px;
-  width: 100%;
-  border: none;
-  /* Gradiente para seguir o estilo da imagem */
-  background: linear-gradient(90deg, #8e7aff, #b598ff);
-  color: white;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: .2s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+    margin-top: 20px;
+    padding: 16px;
+    width: 100%;
+    border: none;
+    background: linear-gradient(90deg, #5A45FF, #7A65FF);
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: .2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-submit:hover {
-  opacity: 0.95;
-  transform: translateY(-1px);
+    opacity: 0.95;
+    transform: translateY(-1px);
 }
 
 /* Estilo para os ícones */
-.icon {
-    font-size: 18px;
-    color: #5A45FF; /* Cor para ícones no cabeçalho */
-}
-
 .btn-submit .icon {
-    color: white; /* Cor branca para ícones dentro do botão de submissão */
+    color: white; 
 }
 
-/* Responsividade: Voltar para uma coluna em telas menores */
+/* ------------------------------------ */
+/* RESPONSIVIDADE             */
+/* ------------------------------------ */
+
+/* Ajustes para telas menores ou iguais a 1024px (Tablets) */
 @media (max-width: 1024px) {
+    
+    /* 1. Layout Principal: Quebra para coluna única */
     .main-grid {
         grid-template-columns: 1fr;
     }
+    
+    /* 2. Divisor: Muda de vertical para horizontal */
     .aluno-coluna {
         border-right: none;
         padding-right: 0;
-        border-bottom: 1px solid #f1f1f1;
-        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0f0;
+        padding-bottom: 30px;
+        margin-bottom: 15px;
     }
+    
+    /* 3. Cards de Responsáveis: Ficam em uma única coluna */
     .responsaveis-grid {
         grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    /* 4. Remove a borda no Responsável Card em colunas */
+    .responsavel-card {
+        border: none;
+        padding: 0;
+    }
+}
+
+/* Ajustes finos para telas menores ou iguais a 600px (Celulares) */
+@media (max-width: 600px) {
+    .page-container {
+        padding: 15px;
+    }
+    .header h2 {
+        font-size: 18px;
+    }
+    .form-container {
+        padding: 20px;
+    }
+    
+    /* 5. Grid Aluno: Campos ficam em coluna única em telas muito pequenas */
+    .aluno-coluna .grid {
+        grid-template-columns: 1fr;
+    }
+    /* Campos que eram "full" se ajustam automaticamente em mobile */
+    .form-group.full {
+        grid-column: auto;
     }
 }
 </style>

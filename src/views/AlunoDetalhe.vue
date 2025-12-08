@@ -11,39 +11,37 @@
     </div>
 
     <div v-else class="content-grid">
-      
       <div class="left-column">
-        
         <div class="info-card personal-data">
           <h3>Informações do Aluno</h3>
           <div class="data-grid">
             <div class="data-group">
               <p>
-                <span class="label">Matrícula:</span> 
+                <span class="label">Matrícula:</span>
                 <strong class="value">{{ aluno.matricula }}</strong>
               </p>
               <p>
-                <span class="label">Nome:</span> 
+                <span class="label">Nome:</span>
                 <strong class="value">{{ aluno.nome }}</strong>
               </p>
               <p>
-                <span class="label">Cpf:</span> 
+                <span class="label">Cpf:</span>
                 <strong class="value">{{ aluno.cpf || 'Não informado' }}</strong>
               </p>
               <p>
-                <span class="label">Endereço:</span> 
+                <span class="label">Endereço:</span>
                 <strong class="value">{{ aluno.endereco || 'Não informado' }}</strong>
               </p>
               <p>
-                <span class="label">Bairro:</span> 
+                <span class="label">Bairro:</span>
                 <strong class="value">{{ aluno.bairro || 'Não informado' }}</strong>
               </p>
               <p>
-                <span class="label">Cidade:</span> 
+                <span class="label">Cidade:</span>
                 <strong class="value">{{ aluno.cidade || 'Não informada' }}</strong>
               </p>
               <p>
-                <span class="label">Idade:</span> 
+                <span class="label">Idade:</span>
                 <strong class="value">{{ calcularIdade(aluno.nascimento) }} anos</strong>
               </p>
             </div>
@@ -51,51 +49,94 @@
         </div>
 
         <div class="action-buttons">
-          <button class="btn-action generate">Gerar Boletim</button>
-          <button class="btn-action edit">Editar cadastro</button>
-          <button class="btn-action frequency">Gerar frequência</button>
-          <button class="btn-action delete">Excluir cadastro</button>
+          <button
+            class="btn-action generate"
+            @click="abrirModal('boletim')"
+            :disabled="turmasAluno.length === 0"
+          >
+            Gerar Boletim
+          </button>
+          <button class="btn-action edit" @click="navegarParaEdicao()">
+            Editar cadastro
+          </button>
+          <button
+            class="btn-action frequency"
+            @click="abrirModal('frequencia')"
+            :disabled="turmasAluno.length === 0"
+          >
+            Gerar Frequência
+          </button>
+          <button class="btn-action delete" @click="excluirAluno()">
+            Excluir cadastro
+          </button>
         </div>
 
         <div class="info-card compact-card alert-card">
           <h3>Alergias</h3>
-          <p class="content-text">{{ aluno.alergias || 'O aluno não possui alergias.' }}</p>
+          <p class="content-text">
+            {{ aluno.alergias || 'O aluno não possui alergias.' }}
+          </p>
         </div>
 
         <div class="info-card compact-card obs-card">
           <h3>Observações</h3>
-          <p class="content-text">{{ aluno.observacoes || 'O aluno não possui observações.' }}</p>
+          <p class="content-text">
+            {{ aluno.observacoes || 'O aluno não possui observações.' }}
+          </p>
         </div>
       </div>
-      
+
       <div class="right-column">
-        
         <div class="info-card responsavel-card">
           <h3>Informações dos Responsáveis</h3>
-          <div v-for="resp in aluno.responsaveis" :key="resp.cpf" class="responsavel-detalhe">
-            <p><span class="label">Parentesco:</span> <strong>{{ resp.parentesco }}</strong></p>
-            <p><span class="label">Nome:</span> <strong>{{ resp.nome }}</strong></p>
-            <p><span class="label">Telefone:</span> <strong>{{ resp.telefone || 'Não informado' }}</strong></p>
-            <p><span class="label">Cpf:</span> <strong>{{ resp.cpf || 'Não informado' }}</strong></p>
-            <p><span class="label">Email:</span> <strong>{{ resp.email || 'Não informado' }}</strong></p>
+          <div
+            v-for="resp in aluno.responsaveis"
+            :key="resp.cpf"
+            class="responsavel-detalhe"
+          >
+            <p>
+              <span class="label">Parentesco:</span>
+              <strong>{{ resp.parentesco }}</strong>
+            </p>
+            <p>
+              <span class="label">Nome:</span>
+              <strong>{{ resp.nome }}</strong>
+            </p>
+            <p>
+              <span class="label">Telefone:</span>
+              <strong>{{ resp.telefone || 'Não informado' }}</strong>
+            </p>
+            <p>
+              <span class="label">Cpf:</span>
+              <strong>{{ resp.cpf || 'Não informado' }}</strong>
+            </p>
+            <p>
+              <span class="label">Email:</span>
+              <strong>{{ resp.email || 'Não informado' }}</strong>
+            </p>
           </div>
-          <p v-if="aluno.responsaveis.length === 0" class="content-text">Nenhum responsável cadastrado.</p>
+          <p v-if="!aluno.responsaveis || aluno.responsaveis.length === 0" class="content-text">
+            Nenhum responsável cadastrado.
+          </p>
         </div>
-        
       </div>
 
       <div class="turmas-container">
         <h3>Turmas Pertencentes</h3>
         <div v-if="turmasAluno.length > 0" class="turmas-list">
-          <div 
-            v-for="(turma, index) in turmasAluno" 
-            :key="turma.id" 
+          <div
+            v-for="(turma, index) in turmasAluno"
+            :key="turma.registro"
             class="turma-card"
             :class="getCardColor(index)"
+            @click="navegarParaDetalhesTurma(turma.registro)"
           >
             <div class="turma-info">
               <span class="turma-nome">{{ turma.nome }}</span>
-              <span class="turma-detalhe">{{ turma.semestre }} - {{ turma.turno.toUpperCase() }}</span>
+              <span class="turma-detalhe"
+                >Reg: {{ turma.registro }} | Prof:
+                {{ turma.professor || 'N/A' }}</span
+              >
             </div>
             <span class="icone ph-bold ph-arrow-right"></span>
           </div>
@@ -104,35 +145,101 @@
           O aluno não está matriculado em nenhuma turma.
         </div>
       </div>
+    </div>
 
+    <div v-if="isModalOpen" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            Gerar {{ modalTipo === 'boletim' ? 'Boletim (Notas)' : 'Frequência' }}
+          </h3>
+          <span
+            class="close-btn ph-bold ph-x"
+            @click="fecharModal"
+          ></span>
+        </div>
+
+        <div class="modal-body">
+          <p class="instruction-text">
+            Selecione a turma para qual você deseja gerar o documento de
+            **{{ modalTipo === 'boletim' ? 'Notas' : 'Frequência' }}**:
+          </p>
+
+          <div
+            v-if="turmasAluno.length > 0"
+            class="turmas-selection-list"
+          >
+            <label
+              v-for="turma in turmasAluno"
+              :key="turma.registro"
+              class="selection-row"
+            >
+              <input
+                type="radio"
+                name="turmaSelection"
+                :value="turma.registro"
+                v-model="turmaSelecionada"
+              />
+              <span class="selection-info">
+                <span class="turma-nome">{{ turma.nome }}</span>
+                <span class="turma-detalhe">
+                  Reg: {{ turma.registro }} | Prof:
+                  {{ turma.professor || 'N/A' }}
+                </span>
+              </span>
+            </label>
+          </div>
+          <p v-else class="content-text">
+            Não há turmas disponíveis para gerar o documento.
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal cancel-btn" @click="fecharModal">
+            Cancelar
+          </button>
+          <button
+            class="btn-modal confirm-btn"
+            :disabled="!turmaSelecionada"
+            @click="gerarDocumento"
+          >
+            Gerar PDF
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { jsPDF } from 'jspdf';
+
 export default {
-  // Simula a obtenção da matrícula via rota (ex: /alunos/0953156)
+  name: 'DetalheAluno',
   props: {
     matricula: {
       type: [String, Number],
-      required: true 
-      // Em uma aplicação real, você pegaria isso de this.$route.params.matricula
-      // Por enquanto, assumimos que é passado via prop.
+      required: true,
+      default: '9999999'
     }
   },
-  
+
   data() {
     return {
       aluno: null,
       todasTurmas: [],
       turmasAluno: [],
-      // Cores para o ciclo de cards de turma
       cardColors: ['yellow', 'green', 'orange', 'blue'],
+      
+      // Modal State
+      isModalOpen: false,
+      modalTipo: '', // 'boletim' ou 'frequencia'
+      turmaSelecionada: null, // Registro da turma selecionada
     };
   },
-  
+
   methods: {
-    // Função de utilidade para calcular a idade (Reutilizada do Dashboard)
+    // Funções de utilidade
     calcularIdade(dataNascimento) {
       if (!dataNascimento) return "N/A";
       const dataNasc = new Date(dataNascimento);
@@ -145,21 +252,19 @@ export default {
       return idade;
     },
 
-    // Determina a cor do card (para seguir o padrão da imagem)
     getCardColor(index) {
-        const colorIndex = index % this.cardColors.length;
-        return `color-${this.cardColors[colorIndex]}`;
+      const colorIndex = index % this.cardColors.length;
+      return `color-${this.cardColors[colorIndex]}`;
     },
 
     carregarDados() {
-      const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
-      this.todasTurmas = JSON.parse(localStorage.getItem("turmas")) || [];
+      const alunos = JSON.parse(localStorage.getItem("alunos") || "[]");
+      this.todasTurmas = JSON.parse(localStorage.getItem("turmas") || "[]");
       
-      // 1. Busca o aluno pela matrícula
-      // Garante que a comparação seja entre string/number se houver inconsistência no storage
       this.aluno = alunos.find(a => String(a.matricula) === String(this.matricula));
       
       if (this.aluno) {
+        this.aluno.responsaveis = this.aluno.responsaveis || []; 
         this.encontrarTurmas();
       }
     },
@@ -167,15 +272,308 @@ export default {
     encontrarTurmas() {
       const matriculaAluno = String(this.aluno.matricula);
       
-      // 2. Filtra as turmas onde a matrícula do aluno está na lista de alunosSelecionados
+      // AQUI MUDAMOS: estamos pegando as turmas inteiras, para ter acesso 
+      // ao nome do professor, atividades e notas salvas no objeto completo.
       this.turmasAluno = this.todasTurmas.filter(turma => {
-        // turmas.alunosSelecionados guarda apenas as matrículas
         return turma.alunosSelecionados && 
                turma.alunosSelecionados.map(String).includes(matriculaAluno);
-      });
+      }).map(turma => ({
+        nome: turma.nome,
+        registro: turma.registro,
+        // Incluímos o professor aqui para exibição na lista de turmas
+        professor: turma.professor || 'N/A', 
+      }));
+    },
+    
+    // --- Lógica do Modal ---
+    abrirModal(tipo) {
+      if (this.turmasAluno.length === 0) {
+        alert("O aluno não está matriculado em nenhuma turma.");
+        return;
+      }
+      this.modalTipo = tipo;
+      this.isModalOpen = true;
+      this.turmaSelecionada = null; // Reseta a seleção
+    },
+
+    fecharModal() {
+      this.isModalOpen = false;
+      this.turmaSelecionada = null;
+      this.modalTipo = '';
+    },
+    
+    gerarDocumento() {
+      if (!this.turmaSelecionada) return;
+
+      const tipoDoc = this.modalTipo === 'boletim' ? 'Boletim de Notas' : 'Relatório de Frequência';
+      
+      // ✅ CORREÇÃO 1: Garante que a turmaDetalhe tem o objeto completo com todas as informações
+      const turmaDetalhe = this.todasTurmas.find(t => String(t.registro) === String(this.turmaSelecionada));
+      
+      if (!turmaDetalhe) {
+        alert("Erro: Turma não encontrada.");
+        return;
+      }
+      
+      this.gerarDocumentoPDF(tipoDoc, turmaDetalhe);
+      
+      this.fecharModal();
+    },
+
+    /**
+     * 🚀 Função para gerar o PDF real usando jsPDF e dados do localStorage
+     */
+    gerarDocumentoPDF(tipo, turma) {
+        // Inicializa o documento PDF (formato A4, em milímetros)
+        const doc = new jsPDF('p', 'mm', 'a4'); 
+        let y = 10; // Posição Y inicial (margem superior)
+        const margin = 20;
+        const matricula = String(this.aluno.matricula);
+
+        // --- TÍTULO DO DOCUMENTO ---
+        doc.setFontSize(18);
+        doc.setTextColor(90, 69, 255); 
+        doc.text(tipo.toUpperCase(), margin, y);
+        y += 10;
+
+        // --- INFORMAÇÕES DO ALUNO ---
+        doc.setLineWidth(0.5);
+        doc.line(margin, y, 210 - margin, y); 
+        y += 5;
+        
+        doc.setFontSize(14);
+        doc.setTextColor(51, 51, 51); 
+        doc.text(`ALUNO: ${this.aluno.nome}`, margin, y);
+        y += 7;
+        doc.setFontSize(12);
+        doc.text(`Matrícula: ${this.aluno.matricula}`, margin, y);
+        y += 7;
+        doc.text(`Turma: ${turma.nome} (Reg: ${turma.registro})`, margin, y);
+        y += 7;
+        
+        // ✅ CORREÇÃO 2: Exibir o nome do professor da turma
+        doc.text(`Professor: ${turma.professor || 'N/A'}`, margin, y);
+        y += 10;
+        doc.line(margin, y, 210 - margin, y); 
+        y += 10;
+        
+        // --- CONTEÚDO ESPECÍFICO ---
+        doc.setFontSize(16);
+        doc.setTextColor(90, 69, 255); 
+        doc.text(`DETALHES DO ${tipo.split(' ')[0].toUpperCase()}`, margin, y);
+        y += 8;
+
+        if (tipo.includes('Boletim')) {
+            // ===================================
+            // LÓGICA DE GERAÇÃO DO BOLETIM (NOTAS)
+            // ===================================
+            
+            // Assume que 'atividades' está no objeto 'turma' completo
+            const atividades = turma.atividades || [];
+            // Assume que 'notas' está no objeto 'turma' completo
+            const notasAluno = turma.notas || {};
+
+            if (atividades.length > 0) {
+                let totalNotaAluno = 0;
+                let totalMaximo = 0;
+
+                doc.setFontSize(12);
+                doc.setTextColor(51, 51, 51); 
+
+                // Cabeçalho da Tabela de Notas
+                doc.setFont('helvetica', 'bold');
+                doc.text('Atividade', margin, y);
+                doc.text('Nota Max.', 100, y);
+                doc.text('Nota Aluno', 130, y);
+                doc.text('Status', 160, y);
+                doc.setFont('helvetica', 'normal');
+                y += 5;
+                doc.line(margin, y, 210 - margin, y); 
+                y += 5;
+
+                atividades.forEach(atividade => {
+                    // ✅ CORREÇÃO 3: Acessa a nota real usando o ID da atividade
+                    const notaRaw = notasAluno[atividade.id] ? notasAluno[atividade.id][matricula] : null;
+                    
+                    // Converte para Number, se existir, para garantir cálculos
+                    const nota = notaRaw !== null && notaRaw !== undefined ? Number(notaRaw) : null;
+                    
+                    const notaMax = atividade.notaMaxima || 100;
+                    const notaMin = atividade.notaMinima || 60;
+                    
+                    const notaFormatada = nota !== null ? nota.toFixed(2) : 'N/A';
+                    let status = 'Pendente';
+                    let statusColor = [150, 150, 150]; // Cinza
+
+                    if (nota !== null) {
+                        totalNotaAluno += nota;
+                        totalMaximo += notaMax;
+                        
+                        if (nota >= notaMin) {
+                            status = 'Aprovado';
+                            statusColor = [76, 175, 80]; // Verde
+                        } else {
+                            status = 'Reprovado';
+                            statusColor = [244, 67, 54]; // Vermelho
+                        }
+                    } else {
+                        // Se não tem nota, ainda conta o peso total, mas não soma o obtido.
+                        totalMaximo += notaMax; 
+                    }
+                    
+                    doc.setFontSize(10);
+                    doc.text(atividade.nome, margin, y);
+                    doc.text(notaMax.toFixed(2), 100, y);
+                    doc.text(notaFormatada, 130, y);
+                    
+                    doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+                    doc.text(status, 160, y);
+                    doc.setTextColor(51, 51, 51); 
+
+                    y += 7;
+                    if (y > 280) { // Quebra de página
+                        doc.addPage();
+                        y = 20;
+                    }
+                });
+
+                y += 5;
+                doc.setLineWidth(0.8);
+                doc.line(margin, y, 210 - margin, y); 
+                y += 5;
+
+                // Média Geral
+                const mediaGeral = totalMaximo > 0 ? (totalNotaAluno / totalMaximo) * 100 : 0;
+                
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Soma de Pontos Obtidos: ${totalNotaAluno.toFixed(2)}`, margin, y);
+                doc.text(`Máximo Total: ${totalMaximo.toFixed(2)}`, 100, y);
+                
+                y += 8;
+                doc.setTextColor(90, 69, 255); 
+                doc.text(`MÉDIA GERAL (%): ${mediaGeral.toFixed(2)}%`, margin, y);
+
+            } else {
+                 doc.setTextColor(153, 153, 153);
+                 doc.text("Nenhuma atividade cadastrada para esta turma.", margin, y);
+            }
+            
+        } else { 
+            // ==========================================
+            // LÓGICA DE GERAÇÃO DO RELATÓRIO DE FREQUÊNCIA
+            // (Mantida, pois já estava correta a busca)
+            // ==========================================
+            
+            const frequenciaTurma = turma.frequencia || {};
+            let totalAulas = 0;
+            let totalPresencas = 0;
+            let faltasPorData = [];
+            const horarios = [1, 2, 3, 4]; // Assumindo 4 horários como no componente de Frequência
+
+            for (const data in frequenciaTurma) {
+                const registrosDoDia = frequenciaTurma[data];
+                
+                if (registrosDoDia && registrosDoDia[matricula]) {
+                    const statusHorarios = registrosDoDia[matricula]; 
+                    
+                    const aulasDia = statusHorarios.length; 
+                    const presencasDia = statusHorarios.filter(p => p).length;
+
+                    totalAulas += aulasDia;
+                    totalPresencas += presencasDia;
+                    
+                    if (presencasDia < aulasDia) {
+                        const faltasNoDia = [];
+                        statusHorarios.forEach((presente, index) => {
+                            if (!presente) {
+                                faltasNoDia.push(`${horarios[index]}º`);
+                            }
+                        });
+                        
+                        faltasPorData.push({
+                            data: data,
+                            faltas: aulasDia - presencasDia,
+                            horariosFaltas: faltasNoDia.join(', '),
+                            totalHorarios: aulasDia
+                        });
+                    }
+                }
+            }
+
+            const totalFaltas = totalAulas - totalPresencas;
+            const porcentagemPresenca = totalAulas > 0 ? (totalPresencas / totalAulas) * 100 : 0;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(51, 51, 51); 
+
+            if (totalAulas > 0) {
+                doc.text(`Total de Horários Lançados: ${totalAulas}`, margin, y);
+                y += 6;
+                doc.text(`Total de Presenças: ${totalPresencas}`, margin, y);
+                y += 6;
+                doc.text(`Total de Faltas: ${totalFaltas}`, margin, y);
+                y += 8;
+
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(porcentagemPresenca >= 75 ? 
+                    [76, 175, 80] : 
+                    [255, 152, 0]); 
+
+                doc.text(`PERCENTUAL DE PRESENÇA: ${porcentagemPresenca.toFixed(1)}%`, margin, y);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(51, 51, 51);
+                y += 10;
+                
+                // --- Detalhe das Faltas ---
+                doc.setFontSize(12);
+                doc.text('Detalhe das Faltas:', margin, y);
+                y += 6;
+
+                if (faltasPorData.length > 0) {
+                    faltasPorData.forEach(item => {
+                        doc.setFontSize(10);
+                        doc.text(`- Data: ${item.data}`, margin + 5, y);
+                        doc.text(`Total de Faltas: ${item.faltas}`, 80, y);
+                        doc.text(`Horários Faltantes: ${item.horariosFaltas}`, 125, y);
+                        y += 6;
+                        if (y > 280) { // Quebra de página
+                            doc.addPage();
+                            y = 20;
+                        }
+                    });
+                } else {
+                     doc.setFontSize(10);
+                     doc.text("Nenhuma falta registrada no período.", margin + 5, y);
+                }
+            } else {
+                doc.setTextColor(153, 153, 153);
+                doc.text("Nenhum registro de frequência encontrado para esta turma.", margin, y);
+            }
+        }
+        
+        // --- SAÍDA DO ARQUIVO ---
+        const nomeArquivo = `${tipo.replace(/ /g, '_')}_${this.aluno.matricula}_${turma.registro}.pdf`;
+        doc.save(nomeArquivo);
+
+        alert(`O PDF de ${tipo} foi gerado com sucesso! Arquivo: ${nomeArquivo}`);
+    },
+
+    // ... (restante dos métodos permanecem iguais)
+    navegarParaDetalhesTurma(registro) {
+      this.$router.push(`/turmas/detalheturma/${registro}`);
+    },
+    navegarParaEdicao() {
+        alert("Navegação para a tela de Edição de Aluno (a ser implementada).");
+    },
+    excluirAluno() {
+        if (confirm(`Tem certeza que deseja EXCLUIR o cadastro do aluno ${this.aluno.nome}? Esta ação é irreversível.`)) {
+            alert(`Aluno ${this.aluno.nome} excluído com sucesso! (Simulação)`);
+        }
     }
   },
-  
+
   mounted() {
     this.carregarDados();
   }
@@ -187,30 +585,29 @@ export default {
 /* 🌎 ESTILOS BASE E LAYOUT PRINCIPAL */
 /* ==================================== */
 .page-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: 'Inter', sans-serif;
- 
-  min-height: 100vh;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
 }
 
 /* --- HEADER --- */
 .header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  padding: 15px 15px;
-  background-color: #ffffff;
-  border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
 }
 
 .header .icone {
-  font-size: 24px;
-  color: #5A45FF;
-  cursor: pointer;
-  transition: opacity 0.2s;
+    font-size: 24px;
+    color: #5A45FF;
+    cursor: pointer;
+    transition: opacity 0.2s;
 }
 
 .header .icone:hover {
@@ -218,18 +615,19 @@ export default {
 }
 
 .header h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
 }
 
 /* --- GRID PRINCIPAL --- */
 .content-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr; /* Coluna esquerda (dados, botões) e direita (responsáveis) */
-  grid-template-rows: auto auto 1fr;
-  gap: 25px;
+    display: grid;
+    /* Coluna esquerda (dados, botões) e direita (responsáveis) */
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 25px;
 }
 
 .left-column {
@@ -241,11 +639,13 @@ export default {
 
 .right-column {
     grid-column: 2 / 3;
-    grid-row: 1 / 3; /* Ocupa o espaço da info pessoal e dos botões */
+    /* Ocupa o espaço da info pessoal e dos botões */
+    grid-row: 1 / 3;
 }
 
 .turmas-container {
-    grid-column: 1 / -1; /* Ocupa toda a largura na parte inferior */
+    /* Ocupa toda a largura na parte inferior */
+    grid-column: 1 / -1;
     margin-top: 15px;
 }
 
@@ -257,20 +657,24 @@ export default {
 }
 
 
+/* ==================================== */
+/* 🗂️ ESTILOS DOS CARDS DE INFORMAÇÃO */
+/* ==================================== */
 /* --- CARDS BASE --- */
 .info-card {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e1e4e6;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e4e6;
 }
 
 .info-card h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #5A45FF; /* Cor de destaque */
-  margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #5A45FF;
+    /* Cor de destaque */
+    margin-bottom: 15px;
 }
 
 .label {
@@ -293,7 +697,7 @@ export default {
 /* --- Card de Informações Pessoais --- */
 .personal-data .data-grid {
     display: grid;
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 
@@ -305,8 +709,10 @@ export default {
 /* --- Card de Responsáveis --- */
 .responsavel-card {
     height: 100%;
-    background-color: #ffffff; /* Fundo roxo claro (como na imagem) */
+    /* Fundo roxo claro (como na imagem) */
+    background-color: #ffffff;
 }
+
 .responsavel-card h3 {
     color: #5A45FF;
 }
@@ -316,15 +722,18 @@ export default {
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
+
 .responsavel-detalhe:last-child {
     border-bottom: none;
     margin-bottom: 0;
     padding-bottom: 0;
 }
+
 .responsavel-detalhe p {
     margin: 3px 0;
     font-size: 14px;
 }
+
 .responsavel-detalhe .label {
     font-size: 13px;
     color: #000000;
@@ -335,12 +744,15 @@ export default {
     flex: 1;
     min-width: 0;
 }
+
 .alert-card {
     /* Pode estilizar a borda ou fundo levemente para alertar */
     border-left: 5px solid #ff9800;
 }
 
-/* --- BOTÕES DE AÇÃO --- */
+/* ==================================== */
+/* 🚀 ESTILOS DOS BOTÕES DE AÇÃO */
+/* ==================================== */
 .action-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -360,26 +772,39 @@ export default {
     min-width: 120px;
 }
 
-/* Estilos de Cor dos Botões (Seguindo o padrão da imagem) */
+/* Estilos de Cor dos Botões */
 .btn-action.generate {
-    background-color: #8e7aff; /* Roxo */
-}
-.btn-action.edit {
-    background-color: #b197ff; /* Lilás */
-}
-.btn-action.frequency {
-    background-color: #70d2b4; /* Verde Água */
-}
-.btn-action.delete {
-    background-color: #ff7f75; /* Vermelho/Coral */
+    background-color: #8e7aff;
+    /* Roxo */
 }
 
-.btn-action:hover {
+.btn-action.edit {
+    background-color: #b197ff;
+    /* Lilás */
+}
+
+.btn-action.frequency {
+    background-color: #70d2b4;
+    /* Verde Água */
+}
+
+.btn-action.delete {
+    background-color: #ff7f75;
+    /* Vermelho/Coral */
+}
+
+.btn-action:hover:not(:disabled) {
     filter: brightness(0.9);
 }
 
+.btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
-/* --- TURMAS PERTENCENTES --- */
+/* ==================================== */
+/* 🎓 ESTILOS DAS TURMAS PERTENCENTES */
+/* ==================================== */
 .turmas-list {
     display: flex;
     flex-wrap: wrap;
@@ -387,7 +812,8 @@ export default {
 }
 
 .turma-card {
-    flex: 1 1 200px; /* Flexível, com largura mínima */
+    /* Flexível, com largura mínima */
+    flex: 1 1 200px;
     padding: 15px 20px;
     border-radius: 10px;
     display: flex;
@@ -424,27 +850,42 @@ export default {
     font-size: 20px;
 }
 
-/* Cores dos cards (Seguindo o padrão da imagem) */
+/* Cores dos cards de Turma */
 .turma-card.color-yellow {
     background-color: #fffed1;
     border: 1px solid #e0d0a0;
 }
+
 .turma-card.color-green {
     background-color: #d1ffee;
     border: 1px solid #a0e0d1;
 }
+
 .turma-card.color-orange {
     background-color: #ffe2cf;
     border: 1px solid #e0b090;
 }
+
 .turma-card.color-blue {
     background-color: #d1eaff;
     border: 1px solid #a0c2e0;
 }
-.turma-card.color-yellow .icone { color: #d09000; }
-.turma-card.color-green .icone { color: #00a060; }
-.turma-card.color-orange .icone { color: #d06000; }
-.turma-card.color-blue .icone { color: #0060d0; }
+
+.turma-card.color-yellow .icone {
+    color: #d09000;
+}
+
+.turma-card.color-green .icone {
+    color: #00a060;
+}
+
+.turma-card.color-orange .icone {
+    color: #d06000;
+}
+
+.turma-card.color-blue .icone {
+    color: #0060d0;
+}
 
 .empty-turmas {
     padding: 30px;
@@ -465,22 +906,201 @@ export default {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     border: 1px solid #e1e4e6;
 }
+
 .empty-state .icone {
     font-size: 40px;
     color: #ff7f75;
 }
+
 .empty-state p {
     color: #555;
     margin-top: 10px;
 }
 
+/* ==================================== */
+/* 🪟 ESTILOS DO MODAL (JANELA FLUTUANTE) */
+/* ==================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #5A45FF;
+}
+
+.close-btn {
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #ff7f75;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.instruction-text {
+    font-size: 14px;
+    color: #4b4b63;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* --- Lista de Seleção no Modal --- */
+.turmas-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.selection-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e4e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.selection-row:has(input:checked) {
+    background-color: #f0f0ff;
+    border-color: #5A45FF;
+}
+
+.selection-row input[type="radio"] {
+    margin-right: 15px;
+    /* Estilo customizado (opcional) */
+    appearance: none;
+    background-color: #fff;
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid #ccc;
+    border-radius: 50%;
+    transform: translateY(-0.075em);
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+}
+
+.selection-row input[type="radio"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em #5A45FF;
+}
+
+.selection-row input[type="radio"]:checked::before {
+    transform: scale(1);
+}
+
+.selection-row input[type="radio"]:checked {
+    border-color: #5A45FF;
+}
+
+
+.selection-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.selection-info .turma-nome {
+    font-weight: 600;
+    color: #333;
+}
+
+.selection-info .turma-detalhe {
+    font-size: 12px;
+    color: #777;
+}
+
+
+/* --- Botões do Modal --- */
+.btn-modal {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+    border: none;
+}
+
+.cancel-btn {
+    background-color: #e0e0e4;
+    color: #4b4b63;
+}
+
+.confirm-btn {
+    background-color: #5A45FF;
+    color: white;
+}
+
+.confirm-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 
 /* ==================================== */
 /* 📱 RESPONSIVIDADE */
 /* ==================================== */
 @media (max-width: 990px) {
     .content-grid {
-        grid-template-columns: 1fr; /* Uma única coluna */
+        /* Uma única coluna */
+        grid-template-columns: 1fr;
         gap: 20px;
     }
 
@@ -490,7 +1110,8 @@ export default {
 
     .right-column {
         grid-column: 1 / -1;
-        grid-row: auto; /* Volta ao fluxo normal após a coluna esquerda */
+        /* Volta ao fluxo normal após a coluna esquerda */
+        grid-row: auto;
     }
 
     .action-buttons {
@@ -507,9 +1128,17 @@ export default {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .turma-card {
         flex-basis: auto;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .btn-modal {
+        width: 100%;
     }
 }
 </style>
