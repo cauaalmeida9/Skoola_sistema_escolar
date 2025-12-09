@@ -35,7 +35,10 @@
                 <span class="label">RG:</span> 
                 <strong class="value">{{ professor.rg || 'Não informado' }}</strong>
               </p>
-             
+              <p>
+                <span class="label">Endereço:</span> 
+                <strong class="value">{{ getEndereco(professor) }}</strong>
+              </p>
             </div>
             
             <div class="data-group">
@@ -64,7 +67,6 @@
         </div>
 
        <div class="action-buttons">
-        <button class="btn-action edit" @click="editarProfessor">Editar cadastro</button>
          <button class="btn-action delete" @click="excluirProfessor">Excluir cadastro</button>
       </div>
 
@@ -84,7 +86,7 @@
               <span class="turma-detalhe">{{ turma.id }} - {{ turma.turno.toUpperCase() }}</span>
               <span class="turma-nome">{{ turma.nome || 'Disciplina não definida' }}</span>
             </div>
-            <span class="icone ph-bold ph-arrow-right"></span>
+            <span class="icone ph-bold ph-arrow-right" @click="$router.push(`/alunos/detalhealuno/${aluno.matricula}`)"></span>
           </div>
         </div>
         <div v-else class="empty-turmas">

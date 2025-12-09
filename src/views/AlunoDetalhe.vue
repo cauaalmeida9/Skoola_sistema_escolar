@@ -56,9 +56,6 @@
           >
             Gerar Boletim
           </button>
-          <button class="btn-action edit" @click="navegarParaEdicao()">
-            Editar cadastro
-          </button>
           <button
             class="btn-action frequency"
             @click="abrirModal('frequencia')"
@@ -554,9 +551,7 @@ export default {
       this.$router.push(`/turmas/detalheturma/${registro}`);
     },
 
-    navegarParaEdicao() {
-      alert("Navegação para tela de edição (a implementar).");
-    },
+    
 
     excluirAluno() {
       if (!this.aluno) return;

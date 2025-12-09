@@ -41,12 +41,13 @@ const router = createRouter({
     { path: '/professores/detalheprofessor/:registro', component: ProfessorDetalhe, meta: { requiresAuth: true }},
   
     { path: '/alunos/detalhealuno/:matricula', name: 'DetalheAluno', component: AlunoDetalhe, props: true, meta: { requiresAuth: true }},
+    
+    // Rotas que agora requerem autenticação
+    { path: '/suporte', component: Suporte, meta: { requiresAuth: true }},
+    { path: '/ia', component: IA, meta: { requiresAuth: true }},
+    { path: '/ajuda', component: Ajuda, meta: { requiresAuth: true }},
 
-    // Livres
-    { path: '/suporte', component: Suporte },
-    { path: '/ia', component: IA },
-    { path: '/ajuda', component: Ajuda },
-
+    // Livre
     { path: '/login', name: 'login', component: TelaLogin }
   ]
 })
