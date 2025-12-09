@@ -76,37 +76,31 @@ const videos = ref([
     id: 1,
     title: "Como cadastrar alunos",
     description: "Aprenda a cadastrar novos alunos no sistema",
-    thumbnail: "https://img.youtube.com/vi/VIDEO_ID_1/hqdefault.jpg",
-    url: "https://www.youtube.com/embed/dTohpaFgwjE?si=PJaYA9cv98bvot1Z"
+    thumbnail: "https://img.youtube.com/vi/**-ChevylAfU8**/hqdefault.jpg",
+    url: "https://www.youtube.com/embed/-ChevylAfU8?si=FQQaFr2lRbDYXsV9" 
   },
   {
     id: 2,
     title: "Criando turmas",
     description: "Aprenda a criar turmas e atribuir alunos",
-    thumbnail: "https://img.youtube.com/vi/VIDEO_ID_2/hqdefault.jpg",
-    url: "https://www.youtube.com/embed/VIDEO_ID_2"
+    thumbnail: "https://img.youtube.com/vi/**ik-njdH5Q5c**/hqdefault.jpg",
+    url: "https://www.youtube.com/embed/3ousolIaMFE?si=KduQ-lzRrUjiAWhZ" 
   },
   {
     id: 3,
     title: "Como cadastrar um professor",
-    description: "Navegando pelo dashboard e relatórios",
+    description: "Aprenda de forma simples como cadastrar um professor",
     thumbnail: "https://img.youtube.com/vi/VIDEO_ID_3/hqdefault.jpg",
-    url: "https://www.youtube.com/embed/VIDEO_ID_3"
+    url: "https://www.youtube.com/embed/39H6CBY7Edw?si=w630ua2jrRdZr5ch" 
   },
     {
     id: 4,
-    title: "Como gerar um boletin",
+    title: "Como gerar um boletin e frequência",
     description: "Navegando pelo dashboard e relatórios",
     thumbnail: "https://img.youtube.com/vi/VIDEO_ID_3/hqdefault.jpg",
-    url: "https://www.youtube.com/embed/VIDEO_ID_3"
+    url: "https://www.youtube.com/embed/ZGJja4ntyvg?si=KoRJ7BBxIpYib1LR"
   },
-    {
-    id: 5,
-    title: "Como gerar frequência",
-    description: "Navegando pelo dashboard e relatórios",
-    thumbnail: "https://img.youtube.com/vi/VIDEO_ID_3/hqdefault.jpg",
-    url: "https://www.youtube.com/embed/VIDEO_ID_3"
-  }
+ 
 ]);
 
 const modalAberto = ref(false);

@@ -24,12 +24,6 @@
                 placeholder="Pesquise pelo nome ou matrícula do aluno"
               >
             </div>
-            <button class="filter-btn" title="Filtrar alunos">
-              <span class="icone ph-bold ph-funnel"></span>
-            </button>
-            <button class="add-btn" title="Ações na lista de alunos">
-              <span class="icone ph-bold ph-list-plus"></span>
-            </button>
           </div>
 
           <div class="alunos-list-container">
@@ -43,7 +37,7 @@
                   <span class="aluno-matricula">{{ aluno.matricula }}</span>
                   <span class="aluno-nome">{{ aluno.nome }}</span>
                 </div>
-                <button class="aluno-action-btn">
+                <button class="aluno-action-btn" @click="$router.push(`/alunos/detalhealuno/${aluno.matricula}`)">
                   <span class="icone ph-bold ph-arrow-right"></span>
                 </button>
               </div>
@@ -107,6 +101,12 @@
             @click="$router.push(`/turmas/detalheturma/lancarnota/${turma.registro}`)"
           >
             Lançar Notas
+          </button>
+          <button
+            class="btn-action secondary-btn"
+            @click="showRemoveAlunoModal = true"
+          >
+            Remover aluno da turma
           </button>
 
         </div>
@@ -173,6 +173,67 @@
         </div>
       </div>
     </div>
+    
+    <div class="modal-overlay" v-if="showRemoveAlunoModal" @click.self="showRemoveAlunoModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Remover Alunos da Turma {{ turma.nome }}</h3>
+          <span class="close-btn ph-bold ph-x" @click="showRemoveAlunoModal = false"></span>
+        </div>
+
+        <div class="modal-body">
+          <div class="search-box-modal">
+            <span class="icone ph-bold ph-magnifying-glass"></span>
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="Pesquisar por nome ou matrícula para remover"
+            >
+          </div>
+
+          <div class="alunos-disponiveis-list">
+            <p v-if="filteredAlunos.length === 0" class="content-text">
+                Nenhum aluno encontrado na turma ou corresponde à pesquisa.
+            </p>
+            <div
+              class="aluno-selection-row"
+              v-for="aluno in filteredAlunos"
+              :key="aluno.matricula"
+            >
+              <div class="aluno-info-text">
+                <span class="aluno-matricula">{{ aluno.matricula }}</span>
+                <span class="aluno-nome">{{ aluno.nome }}</span>
+              </div>
+
+              <label class="checkbox-container">
+                <input
+                  type="checkbox"
+                  :value="aluno.matricula"
+                  v-model="selectedAlunosToRemove"
+                >
+                <span class="checkmark"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn-modal cancel-btn"
+            @click="showRemoveAlunoModal = false"
+          >
+            Cancelar
+          </button>
+          <button
+            class="btn-modal confirm-btn"
+            :disabled="selectedAlunosToRemove.length === 0"
+            @click="removerAlunos"
+          >
+            Remover {{ selectedAlunosToRemove.length }} Aluno(s)
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -184,16 +245,20 @@ export default {
       alunos: [], // Alunos ATUALMENTE na turma
       searchQuery: '',
 
-      // VARIÁVEIS PARA O MODAL
+      // VARIÁVEIS PARA O MODAL DE ADICIONAR
       showAddAlunoModal: false,
       todosAlunosSistema: [], // Todos os alunos disponíveis no sistema
       modalSearchQuery: '',
       selectedAlunosToAdd: [], // Matrículas dos alunos selecionados no modal
+
+      // ⭐ NOVO: VARIÁVEIS PARA O MODAL DE REMOVER
+      showRemoveAlunoModal: false, // Controla a exibição do modal de remoção
+      selectedAlunosToRemove: [],  // Matrículas dos alunos selecionados para remoção
     };
   },
 
   computed: {
-    // 1. Filtra alunos que JÁ ESTÃO na turma (para exibição principal)
+    // 1. Filtra alunos que JÁ ESTÃO na turma (para exibição principal e modal de REMOÇÃO)
     filteredAlunos() {
       if (!this.searchQuery) {
         return this.alunos;
@@ -250,9 +315,6 @@ export default {
       }
     },
 
-    // A função de navegação foi removida, pois o `@click` no template já faz isso diretamente.
-    
-    // ⭐ NOVO MÉTODO PARA NAVEGAR PARA O LANÇAMENTO DE NOTAS ⭐
     navegarParaLancamentoNotas() {
         this.$router.push({
             // Path configurado na sua rota
@@ -286,8 +348,8 @@ export default {
             .map(matricula => alunosData.find(a => String(a.matricula) === String(matricula)))
               .filter(Boolean);
            } else {
-             this.alunos = []; // Novo ajuste
-           }
+              this.alunos = []; // Novo ajuste
+            }
         // ✅ GARANTE QUE ATIVIDADES É SEMPRE UM ARRAY
         this.turma.atividades = this.turma.atividades || [];
       } else {
@@ -302,9 +364,11 @@ export default {
           .map(matricula => this.todosAlunosSistema.find(a => String(a.matricula) === String(matricula)))
           .filter(Boolean);
 
+      // Adiciona os objetos completos à lista de exibição
       this.alunos.push(...novosAlunosData);
 
       const novasMatriculas = this.selectedAlunosToAdd;
+      // Adiciona as matrículas ao registro da turma
       this.turma.alunosSelecionados = Array.isArray(this.turma.alunosSelecionados)
           ? [...this.turma.alunosSelecionados, ...novasMatriculas]
           : [...novasMatriculas];
@@ -325,14 +389,48 @@ export default {
       this.showAddAlunoModal = false;
       this.modalSearchQuery = '';
       alert(`${novosAlunosData.length} alunos adicionados à turma!`);
+    },
+    
+    // ⭐ NOVO MÉTODO PARA REMOVER ALUNOS
+    removerAlunos() {
+        if (this.selectedAlunosToRemove.length === 0) return;
+
+        const matriculasParaRemover = this.selectedAlunosToRemove.map(String);
+
+        // 1. Atualiza a lista de alunos da turma (this.alunos) - remove os selecionados
+        this.alunos = this.alunos.filter(aluno =>
+            !matriculasParaRemover.includes(String(aluno.matricula))
+        );
+
+        // 2. Atualiza a lista de matrículas salvas na turma (this.turma.alunosSelecionados)
+        this.turma.alunosSelecionados = (this.turma.alunosSelecionados || []).filter(matricula =>
+            !matriculasParaRemover.includes(String(matricula))
+        );
+
+        // 3. PERSISTÊNCIA no localStorage
+        let todasTurmas = JSON.parse(localStorage.getItem('turmas') || '[]');
+        const turmaIndex = todasTurmas.findIndex(t => String(t.registro) === String(this.turma.registro));
+
+        if (turmaIndex !== -1) {
+            todasTurmas[turmaIndex].alunosSelecionados = this.turma.alunosSelecionados;
+            todasTurmas[turmaIndex].atividades = this.turma.atividades || [];
+        }
+
+        localStorage.setItem('turmas', JSON.stringify(todasTurmas));
+
+        // 4. Limpa e fecha o modal
+        const count = this.selectedAlunosToRemove.length;
+        this.selectedAlunosToRemove = [];
+        this.showRemoveAlunoModal = false;
+        alert(`${count} aluno(s) removido(s) da turma!`);
     }
   }
 };
 </script>
 
 <style scoped>
-/* Os estilos foram mantidos exatamente como você forneceu. */
-
+/* A seção de estilos (style scoped) não precisa de alterações funcionais para o modal de remoção, pois a classe modal-overlay, modal-content, etc. e os estilos de checkbox já existem e foram reutilizados no novo modal. */
+/* ... (Estilos mantidos exatamente como estavam no código original) ... */
 .page-container {
     padding: 20px;
     max-width: 1200px;
@@ -571,7 +669,7 @@ export default {
     background-color: #8e7aff;
 }
 
-/* ✅ NOVOS ESTILOS PARA LISTA DE ATIVIDADES */
+/* ✅ ESTILOS PARA LISTA DE ATIVIDADES */
 .activities-list {
     display: flex;
     flex-direction: column;
@@ -612,8 +710,6 @@ export default {
     font-weight: 500;
     white-space: nowrap; /* Evita quebra de linha na data */
 }
-/* FIM DOS NOVOS ESTILOS */
-
 
 .activities-card h3 {
     font-size: 16px;

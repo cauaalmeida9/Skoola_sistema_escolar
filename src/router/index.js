@@ -17,6 +17,7 @@ import TurmaDetalhe from '@/views/TurmaDetalhe.vue'
 import LancarFrquencia from '@/views/LancarFrquencia.vue'
 import LancarAtividade from '@/views/LancarAtividade.vue'
 import LancarNota from '@/views/LancarNota.vue'
+import IA from '@/views/IA.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -43,6 +44,7 @@ const router = createRouter({
 
     // Livres
     { path: '/suporte', component: Suporte },
+    { path: '/ia', component: IA },
     { path: '/ajuda', component: Ajuda },
 
     { path: '/login', name: 'login', component: TelaLogin }

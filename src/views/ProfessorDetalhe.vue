@@ -35,10 +35,7 @@
                 <span class="label">RG:</span> 
                 <strong class="value">{{ professor.rg || 'Não informado' }}</strong>
               </p>
-              <p>
-                <span class="label">Endereço:</span> 
-                <strong class="value">{{ getEndereco(professor) }}</strong>
-              </p>
+             
             </div>
             
             <div class="data-group">

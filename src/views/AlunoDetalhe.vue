@@ -230,16 +230,15 @@ export default {
       todasTurmas: [],
       turmasAluno: [],
       cardColors: ['yellow', 'green', 'orange', 'blue'],
-      
+
       // Modal State
       isModalOpen: false,
       modalTipo: '', // 'boletim' ou 'frequencia'
-      turmaSelecionada: null, // Registro da turma selecionada
+      turmaSelecionada: null,
     };
   },
 
   methods: {
-    // Funções de utilidade
     calcularIdade(dataNascimento) {
       if (!dataNascimento) return "N/A";
       const dataNasc = new Date(dataNascimento);
@@ -260,32 +259,27 @@ export default {
     carregarDados() {
       const alunos = JSON.parse(localStorage.getItem("alunos") || "[]");
       this.todasTurmas = JSON.parse(localStorage.getItem("turmas") || "[]");
-      
+
       this.aluno = alunos.find(a => String(a.matricula) === String(this.matricula));
-      
+
       if (this.aluno) {
-        this.aluno.responsaveis = this.aluno.responsaveis || []; 
+        this.aluno.responsaveis = this.aluno.responsaveis || [];
         this.encontrarTurmas();
       }
     },
-    
+
     encontrarTurmas() {
       const matriculaAluno = String(this.aluno.matricula);
-      
-      // AQUI MUDAMOS: estamos pegando as turmas inteiras, para ter acesso 
-      // ao nome do professor, atividades e notas salvas no objeto completo.
-      this.turmasAluno = this.todasTurmas.filter(turma => {
-        return turma.alunosSelecionados && 
-               turma.alunosSelecionados.map(String).includes(matriculaAluno);
-      }).map(turma => ({
-        nome: turma.nome,
-        registro: turma.registro,
-        // Incluímos o professor aqui para exibição na lista de turmas
-        professor: turma.professor || 'N/A', 
-      }));
+
+      this.turmasAluno = this.todasTurmas
+        .filter(turma => turma.alunosSelecionados && turma.alunosSelecionados.map(String).includes(matriculaAluno))
+        .map(turma => ({
+          nome: turma.nome,
+          registro: turma.registro,
+          professor: turma.professor || 'N/A'
+        }));
     },
-    
-    // --- Lógica do Modal ---
+
     abrirModal(tipo) {
       if (this.turmasAluno.length === 0) {
         alert("O aluno não está matriculado em nenhuma turma.");
@@ -293,7 +287,7 @@ export default {
       }
       this.modalTipo = tipo;
       this.isModalOpen = true;
-      this.turmaSelecionada = null; // Reseta a seleção
+      this.turmaSelecionada = null;
     },
 
     fecharModal() {
@@ -301,276 +295,294 @@ export default {
       this.turmaSelecionada = null;
       this.modalTipo = '';
     },
-    
+
     gerarDocumento() {
       if (!this.turmaSelecionada) return;
 
       const tipoDoc = this.modalTipo === 'boletim' ? 'Boletim de Notas' : 'Relatório de Frequência';
-      
-      // ✅ CORREÇÃO 1: Garante que a turmaDetalhe tem o objeto completo com todas as informações
+
       const turmaDetalhe = this.todasTurmas.find(t => String(t.registro) === String(this.turmaSelecionada));
-      
+
       if (!turmaDetalhe) {
         alert("Erro: Turma não encontrada.");
         return;
       }
-      
+
       this.gerarDocumentoPDF(tipoDoc, turmaDetalhe);
-      
       this.fecharModal();
     },
 
-    /**
-     * 🚀 Função para gerar o PDF real usando jsPDF e dados do localStorage
-     */
+    // 📄 ***GERAÇÃO DO PDF COM CORREÇÃO***
     gerarDocumentoPDF(tipo, turma) {
-        // Inicializa o documento PDF (formato A4, em milímetros)
-        const doc = new jsPDF('p', 'mm', 'a4'); 
-        let y = 10; // Posição Y inicial (margem superior)
-        const margin = 20;
-        const matricula = String(this.aluno.matricula);
+      const doc = new jsPDF('p', 'mm', 'a4');
+      let y = 10;
+      const margin = 20;
+      const matricula = String(this.aluno.matricula);
 
-        // --- TÍTULO DO DOCUMENTO ---
-        doc.setFontSize(18);
-        doc.setTextColor(90, 69, 255); 
-        doc.text(tipo.toUpperCase(), margin, y);
-        y += 10;
+      // Cabeçalho
+      doc.setFontSize(18);
+      doc.setTextColor(90, 69, 255);
+      doc.text(tipo.toUpperCase(), margin, y);
+      y += 10;
 
-        // --- INFORMAÇÕES DO ALUNO ---
-        doc.setLineWidth(0.5);
-        doc.line(margin, y, 210 - margin, y); 
-        y += 5;
-        
-        doc.setFontSize(14);
-        doc.setTextColor(51, 51, 51); 
-        doc.text(`ALUNO: ${this.aluno.nome}`, margin, y);
-        y += 7;
-        doc.setFontSize(12);
-        doc.text(`Matrícula: ${this.aluno.matricula}`, margin, y);
-        y += 7;
-        doc.text(`Turma: ${turma.nome} (Reg: ${turma.registro})`, margin, y);
-        y += 7;
-        
-        // ✅ CORREÇÃO 2: Exibir o nome do professor da turma
-        doc.text(`Professor: ${turma.professor || 'N/A'}`, margin, y);
-        y += 10;
-        doc.line(margin, y, 210 - margin, y); 
-        y += 10;
-        
-        // --- CONTEÚDO ESPECÍFICO ---
-        doc.setFontSize(16);
-        doc.setTextColor(90, 69, 255); 
-        doc.text(`DETALHES DO ${tipo.split(' ')[0].toUpperCase()}`, margin, y);
-        y += 8;
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, 210 - margin, y);
+      y += 5;
 
-        if (tipo.includes('Boletim')) {
-            // ===================================
-            // LÓGICA DE GERAÇÃO DO BOLETIM (NOTAS)
-            // ===================================
-            
-            // Assume que 'atividades' está no objeto 'turma' completo
-            const atividades = turma.atividades || [];
-            // Assume que 'notas' está no objeto 'turma' completo
-            const notasAluno = turma.notas || {};
+      doc.setFontSize(14);
+      doc.setTextColor(51, 51, 51);
+      doc.text(`ALUNO: ${this.aluno.nome}`, margin, y);
+      y += 7;
+      doc.setFontSize(12);
+      doc.text(`Matrícula: ${this.aluno.matricula}`, margin, y);
+      y += 7;
+      doc.text(`Turma: ${turma.nome} (Reg: ${turma.registro})`, margin, y);
+      y += 7;
+      doc.text(`Professor: ${turma.professor || 'N/A'}`, margin, y);
+      y += 10;
+      doc.line(margin, y, 210 - margin, y);
+      y += 10;
 
-            if (atividades.length > 0) {
-                let totalNotaAluno = 0;
-                let totalMaximo = 0;
+      doc.setFontSize(16);
+      doc.setTextColor(90, 69, 255);
+      doc.text(`DETALHES DO ${tipo.split(' ')[0].toUpperCase()}`, margin, y);
+      y += 8;
 
-                doc.setFontSize(12);
-                doc.setTextColor(51, 51, 51); 
+      // ----------------------------------------------------------------------
+      // 📘 ***BOLETIM***
+      // ----------------------------------------------------------------------
+      if (tipo.includes('Boletim')) {
+        const atividades = turma.atividades || [];
+        const notasAluno = turma.notas || {};
 
-                // Cabeçalho da Tabela de Notas
-                doc.setFont('helvetica', 'bold');
-                doc.text('Atividade', margin, y);
-                doc.text('Nota Max.', 100, y);
-                doc.text('Nota Aluno', 130, y);
-                doc.text('Status', 160, y);
-                doc.setFont('helvetica', 'normal');
-                y += 5;
-                doc.line(margin, y, 210 - margin, y); 
-                y += 5;
+        if (atividades.length > 0) {
+          let totalNotaAluno = 0;
+          let totalMaximo = 0;
 
-                atividades.forEach(atividade => {
-                    // ✅ CORREÇÃO 3: Acessa a nota real usando o ID da atividade
-                    const notaRaw = notasAluno[atividade.id] ? notasAluno[atividade.id][matricula] : null;
-                    
-                    // Converte para Number, se existir, para garantir cálculos
-                    const nota = notaRaw !== null && notaRaw !== undefined ? Number(notaRaw) : null;
-                    
-                    const notaMax = atividade.notaMaxima || 100;
-                    const notaMin = atividade.notaMinima || 60;
-                    
-                    const notaFormatada = nota !== null ? nota.toFixed(2) : 'N/A';
-                    let status = 'Pendente';
-                    let statusColor = [150, 150, 150]; // Cinza
+          doc.setFontSize(12);
+          doc.setTextColor(51, 51, 51);
 
-                    if (nota !== null) {
-                        totalNotaAluno += nota;
-                        totalMaximo += notaMax;
-                        
-                        if (nota >= notaMin) {
-                            status = 'Aprovado';
-                            statusColor = [76, 175, 80]; // Verde
-                        } else {
-                            status = 'Reprovado';
-                            statusColor = [244, 67, 54]; // Vermelho
-                        }
-                    } else {
-                        // Se não tem nota, ainda conta o peso total, mas não soma o obtido.
-                        totalMaximo += notaMax; 
-                    }
-                    
-                    doc.setFontSize(10);
-                    doc.text(atividade.nome, margin, y);
-                    doc.text(notaMax.toFixed(2), 100, y);
-                    doc.text(notaFormatada, 130, y);
-                    
-                    doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-                    doc.text(status, 160, y);
-                    doc.setTextColor(51, 51, 51); 
+          doc.setFont('helvetica', 'bold');
+          doc.text('Atividade', margin, y);
+          doc.text('Nota Max.', 100, y);
+          doc.text('Nota Aluno', 130, y);
+          doc.text('Status', 160, y);
+          doc.setFont('helvetica', 'normal');
+          y += 5;
 
-                    y += 7;
-                    if (y > 280) { // Quebra de página
-                        doc.addPage();
-                        y = 20;
-                    }
-                });
+          doc.line(margin, y, 210 - margin, y);
+          y += 5;
 
-                y += 5;
-                doc.setLineWidth(0.8);
-                doc.line(margin, y, 210 - margin, y); 
-                y += 5;
+          atividades.forEach(atividade => {
+  const notaRaw = notasAluno[atividade.id] ? notasAluno[atividade.id][matricula] : null;
+  const nota = notaRaw !== null && notaRaw !== undefined ? Number(notaRaw) : null;
 
-                // Média Geral
-                const mediaGeral = totalMaximo > 0 ? (totalNotaAluno / totalMaximo) * 100 : 0;
-                
-                doc.setFontSize(14);
-                doc.setFont('helvetica', 'bold');
-                doc.text(`Soma de Pontos Obtidos: ${totalNotaAluno.toFixed(2)}`, margin, y);
-                doc.text(`Máximo Total: ${totalMaximo.toFixed(2)}`, 100, y);
-                
-                y += 8;
-                doc.setTextColor(90, 69, 255); 
-                doc.text(`MÉDIA GERAL (%): ${mediaGeral.toFixed(2)}%`, margin, y);
+  const notaMax = atividade.notaMaxima || 100;
+  const notaMin = atividade.notaMinima || 60;
 
-            } else {
-                 doc.setTextColor(153, 153, 153);
-                 doc.text("Nenhuma atividade cadastrada para esta turma.", margin, y);
-            }
-            
-        } else { 
-            // ==========================================
-            // LÓGICA DE GERAÇÃO DO RELATÓRIO DE FREQUÊNCIA
-            // (Mantida, pois já estava correta a busca)
-            // ==========================================
-            
-            const frequenciaTurma = turma.frequencia || {};
-            let totalAulas = 0;
-            let totalPresencas = 0;
-            let faltasPorData = [];
-            const horarios = [1, 2, 3, 4]; // Assumindo 4 horários como no componente de Frequência
+  const notaFormatada = nota !== null ? nota.toFixed(2) : 'N/A';
+  let status = 'Pendente';
+  let statusColor = [150, 150, 150];
 
-            for (const data in frequenciaTurma) {
-                const registrosDoDia = frequenciaTurma[data];
-                
-                if (registrosDoDia && registrosDoDia[matricula]) {
-                    const statusHorarios = registrosDoDia[matricula]; 
-                    
-                    const aulasDia = statusHorarios.length; 
-                    const presencasDia = statusHorarios.filter(p => p).length;
+  if (nota !== null) {
+    totalNotaAluno += nota;
+    totalMaximo += notaMax;
 
-                    totalAulas += aulasDia;
-                    totalPresencas += presencasDia;
-                    
-                    if (presencasDia < aulasDia) {
-                        const faltasNoDia = [];
-                        statusHorarios.forEach((presente, index) => {
-                            if (!presente) {
-                                faltasNoDia.push(`${horarios[index]}º`);
-                            }
-                        });
-                        
-                        faltasPorData.push({
-                            data: data,
-                            faltas: aulasDia - presencasDia,
-                            horariosFaltas: faltasNoDia.join(', '),
-                            totalHorarios: aulasDia
-                        });
-                    }
-                }
-            }
+    if (nota >= notaMin) {
+      status = 'Aprovado';
+      statusColor = [76, 175, 80];
+    } else {
+      status = 'Reprovado';
+      statusColor = [244, 67, 54];
+    }
+  } else {
+    totalMaximo += notaMax;
+  }
 
-            const totalFaltas = totalAulas - totalPresencas;
-            const porcentagemPresenca = totalAulas > 0 ? (totalPresencas / totalAulas) * 100 : 0;
-            
-            doc.setFontSize(12);
-            doc.setTextColor(51, 51, 51); 
+  doc.setFontSize(10);
+  doc.text(atividade.nome || 'N/A', margin, y);
+  doc.text(notaMax.toFixed(2), 100, y);
+  doc.text(notaFormatada, 130, y);
 
-            if (totalAulas > 0) {
-                doc.text(`Total de Horários Lançados: ${totalAulas}`, margin, y);
-                y += 6;
-                doc.text(`Total de Presenças: ${totalPresencas}`, margin, y);
-                y += 6;
-                doc.text(`Total de Faltas: ${totalFaltas}`, margin, y);
-                y += 8;
+  doc.setTextColor(...statusColor);
+  doc.text(status, 160, y);
+  doc.setTextColor(51, 51, 51);
 
-                doc.setFontSize(14);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(porcentagemPresenca >= 75 ? 
-                    [76, 175, 80] : 
-                    [255, 152, 0]); 
+  y += 7;
 
-                doc.text(`PERCENTUAL DE PRESENÇA: ${porcentagemPresenca.toFixed(1)}%`, margin, y);
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(51, 51, 51);
-                y += 10;
-                
-                // --- Detalhe das Faltas ---
-                doc.setFontSize(12);
-                doc.text('Detalhe das Faltas:', margin, y);
-                y += 6;
+  if (y > 280) {
+    doc.addPage();
+    y = 20;
+  }
+});
 
-                if (faltasPorData.length > 0) {
-                    faltasPorData.forEach(item => {
-                        doc.setFontSize(10);
-                        doc.text(`- Data: ${item.data}`, margin + 5, y);
-                        doc.text(`Total de Faltas: ${item.faltas}`, 80, y);
-                        doc.text(`Horários Faltantes: ${item.horariosFaltas}`, 125, y);
-                        y += 6;
-                        if (y > 280) { // Quebra de página
-                            doc.addPage();
-                            y = 20;
-                        }
-                    });
-                } else {
-                     doc.setFontSize(10);
-                     doc.text("Nenhuma falta registrada no período.", margin + 5, y);
-                }
-            } else {
-                doc.setTextColor(153, 153, 153);
-                doc.text("Nenhum registro de frequência encontrado para esta turma.", margin, y);
-            }
+          y += 5;
+          doc.line(margin, y, 210 - margin, y);
+          y += 5;
+
+          const mediaGeral = totalMaximo > 0 ? (totalNotaAluno / totalMaximo) * 100 : 0;
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Soma de Pontos Obtidos: ${totalNotaAluno.toFixed(2)}`, margin, y);
+          doc.text(`Máximo Total: ${totalMaximo.toFixed(2)}`, 100, y);
+
+          y += 8;
+
+          doc.setTextColor(90, 69, 255);
+          doc.text(`MÉDIA GERAL (%): ${mediaGeral.toFixed(2)}%`, margin, y);
+
+        } else {
+          doc.setTextColor(153, 153, 153);
+          doc.text("Nenhuma atividade cadastrada para esta turma.", margin, y);
         }
-        
-        // --- SAÍDA DO ARQUIVO ---
-        const nomeArquivo = `${tipo.replace(/ /g, '_')}_${this.aluno.matricula}_${turma.registro}.pdf`;
-        doc.save(nomeArquivo);
 
-        alert(`O PDF de ${tipo} foi gerado com sucesso! Arquivo: ${nomeArquivo}`);
+      // ----------------------------------------------------------------------
+      // 📗 ***FREQUÊNCIA***
+      // ----------------------------------------------------------------------
+      } else {
+        const frequenciaTurma = typeof turma.frequencia === 'object' ? turma.frequencia : {};
+
+        let totalAulas = 0;
+        let totalPresencas = 0;
+        let faltasPorData = [];
+        const horarios = [1, 2, 3, 4];
+
+        for (const data in frequenciaTurma) {
+          const registrosDoDia = frequenciaTurma[data];
+
+          if (registrosDoDia) {
+            let statusHorarios = registrosDoDia[matricula];
+
+            // ❤️ CORREÇÃO: Garante que statusHorarios seja array de booleans
+            if (!Array.isArray(statusHorarios)) {
+              if (typeof statusHorarios === 'string') {
+                // Converte a string "true,false,..." para um array de booleans
+                statusHorarios = statusHorarios
+                  .split(',')
+                  .map(v => v.trim() === 'true');
+              } else {
+                continue;
+              }
+            }
+
+            const aulasDia = statusHorarios.length;
+            const presencasDia = statusHorarios.filter(p => p).length;
+
+            totalAulas += aulasDia;
+            totalPresencas += presencasDia;
+
+            if (presencasDia < aulasDia) {
+              const faltasNoDia = [];
+              statusHorarios.forEach((presente, index) => {
+                if (!presente) faltasNoDia.push(`${horarios[index]}º`);
+              });
+
+              faltasPorData.push({
+                data,
+                faltas: aulasDia - presencasDia,
+                horariosFaltas: faltasNoDia.join(', '),
+                totalHorarios: aulasDia
+              });
+            }
+          }
+        }
+
+        const totalFaltas = totalAulas - totalPresencas;
+        const porcentagemPresenca = totalAulas > 0 ? (totalPresencas / totalAulas) * 100 : 0;
+
+        doc.setFontSize(12);
+        doc.setTextColor(51, 51, 51);
+
+        if (totalAulas > 0) {
+          doc.text(`Total de Horários Lançados: ${totalAulas}`, margin, y);
+          y += 6;
+          doc.text(`Total de Presenças: ${totalPresencas}`, margin, y);
+          y += 6;
+          doc.text(`Total de Faltas: ${totalFaltas}`, margin, y);
+          y += 8;
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(14);
+          doc.setTextColor(
+            porcentagemPresenca >= 75
+              ? [76, 175, 80]
+              : [255, 152, 0]
+          );
+          doc.text(`PERCENTUAL DE PRESENÇA: ${porcentagemPresenca.toFixed(1)}%`, margin, y);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(51, 51, 51);
+          y += 10;
+
+          doc.setFontSize(12);
+          doc.text('Detalhe das Faltas:', margin, y);
+          y += 6;
+
+          if (faltasPorData.length > 0) {
+            faltasPorData.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+            faltasPorData.forEach(item => {
+              doc.setFontSize(10);
+              doc.text(`- Data: ${item.data}`, margin + 5, y);
+              doc.text(`Faltas: ${item.faltas}`, 80, y);
+              doc.text(`Horários: ${item.horariosFaltas}`, 125, y);
+              y += 6;
+
+              if (y > 280) {
+                doc.addPage();
+                y = 20;
+              }
+            });
+          } else {
+            doc.setFontSize(10);
+            doc.text("Nenhuma falta registrada no período.", margin + 5, y);
+          }
+        } else {
+          doc.setTextColor(153, 153, 153);
+          doc.text("Nenhum registro de frequência encontrado para esta turma.", margin, y);
+        }
+      }
+
+      const nomeArquivo = `${tipo.replace(/ /g, '_')}_${this.aluno.matricula}_${turma.registro}.pdf`;
+      doc.save(nomeArquivo);
+
+      alert(`O PDF de ${tipo} foi gerado com sucesso! Arquivo: ${nomeArquivo}`);
     },
 
-    // ... (restante dos métodos permanecem iguais)
     navegarParaDetalhesTurma(registro) {
       this.$router.push(`/turmas/detalheturma/${registro}`);
     },
+
     navegarParaEdicao() {
-        alert("Navegação para a tela de Edição de Aluno (a ser implementada).");
+      alert("Navegação para tela de edição (a implementar).");
     },
+
     excluirAluno() {
-        if (confirm(`Tem certeza que deseja EXCLUIR o cadastro do aluno ${this.aluno.nome}? Esta ação é irreversível.`)) {
-            alert(`Aluno ${this.aluno.nome} excluído com sucesso! (Simulação)`);
-        }
+      if (!this.aluno) return;
+
+      const nomeAluno = this.aluno.nome;
+      const matriculaExcluir = String(this.aluno.matricula);
+
+      if (confirm(`Tem certeza que deseja EXCLUIR o aluno ${nomeAluno}?`)) {
+        let alunos = JSON.parse(localStorage.getItem("alunos") || "[]");
+        const novosAlunos = alunos.filter(a => String(a.matricula) !== matriculaExcluir);
+        localStorage.setItem("alunos", JSON.stringify(novosAlunos));
+
+        let turmas = JSON.parse(localStorage.getItem("turmas") || "[]");
+        const novasTurmas = turmas.map(turma => {
+          if (turma.alunosSelecionados) {
+            turma.alunosSelecionados =
+              turma.alunosSelecionados.filter(m => String(m) !== matriculaExcluir);
+          }
+          return turma;
+        });
+
+        localStorage.setItem("turmas", JSON.stringify(novasTurmas));
+
+        alert(`Aluno ${nomeAluno} removido com sucesso.`);
+        this.$router.push('/alunos');
+      }
     }
   },
 
@@ -578,6 +590,7 @@ export default {
     this.carregarDados();
   }
 };
+
 </script>
 
 <style scoped>
@@ -1139,6 +1152,9 @@ export default {
 
     .btn-modal {
         width: 100%;
+    }
+    .turma-card {
+        flex-basis: auto;
     }
 }
 </style>

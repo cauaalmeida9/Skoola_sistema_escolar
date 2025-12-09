@@ -4,20 +4,20 @@ import router from '@/router'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isAuthenticated: false,
-    user: null, // Para simular dados do usuário
+    user: null,
   }),
   actions: {
     login(username, password) {
-      // Simulação de autenticação (você pode criar um "usuário fixo")
+      
       const mockUser = {
         username: 'escola@gmail.com',
-        password: 'escola123'
+        password: 'escola2284'
       }
 
       if (username === mockUser.username && password === mockUser.password) {
         this.isAuthenticated = true
         this.user = { username: mockUser.username }
-        // Salvar no localStorage
+       
         localStorage.setItem('auth', JSON.stringify({ isAuthenticated: true, user: this.user }))
         router.push('/home')
       } else {
@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', {
       router.push('/login')
     },
     checkAuth() {
-      // Recupera do localStorage
+      
       const authData = JSON.parse(localStorage.getItem('auth'))
       if (authData && authData.isAuthenticated) {
         this.isAuthenticated = true

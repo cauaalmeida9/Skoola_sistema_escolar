@@ -1,88 +1,97 @@
 <template>
   <div :class="['sidebar', { active: sidebarActive }]">
 
-      
-      <div class="menu-btn" @click="toggleSidebar">
-        <i class="ph-bold ph-caret-left"></i>
+    <div class="menu-btn" @click="toggleSidebar">
+      <i class="ph-bold ph-caret-left"></i>
+    </div>
+
+    <div class="head">
+      <div class="user-img">
+        <img src="/public/S.svg" alt="Logo" />
       </div>
 
-      <div class="head">
-        <div class="user-img">
-          <img src="/public/S.svg" alt="Logo" />
-        </div>
-
-        <div class="user-details">
-          <p class="title">SKOOLA</p>
-          <p class="name">Escola Jesus</p>
-        </div>
+      <div class="user-details">
+        <p class="title">SKOOLA</p>
+        <p class="name">Escola Jesus</p>
       </div>
+    </div>
 
+    <div class="menu">
+      <p class="title">Menu</p>
+
+      <ul>
+        <li v-for="(item, index) in menuItems" :key="index" :class="{ active: activeMain === index }">
+          
+          <router-link
+            v-if="!item.children"
+            :to="item.route"
+            class="menu-item"
+            active-class="active"
+          >
+            <i :class="item.icon"></i>
+            <span class="text">{{ item.title }}</span>
+          </router-link>
+
+          <div v-else class="menu-item" @click="toggleMain(index)">
+            <i :class="item.icon"></i>
+            <span class="text">{{ item.title }}</span>
+            <i class="arrow ph-bold ph-caret-down"
+                :class="{ open: activeMain === index }"></i>
+          </div>
+
+          <ul class="sub-menu" v-if="item.children" v-show="activeMain === index">
+            <li v-for="(child, cIndex) in item.children" :key="cIndex">
+              <router-link :to="child.route" class="sub-menu-item" active-class="active">
+                <span class="text">{{ child.title }}</span>
+              </router-link>
+            </li>
+          </ul>
+
+        </li>
+      </ul>
+    </div>
+
+    <div class="menu">
+      <p class="title">Suporte</p>
+      <ul>
+        <li v-for="(item, index) in menuSuport" :key="index">
+          <router-link :to="item.route" class="menu-item" active-class="active">
+            <i :class="item.icon"></i>
+            <span class="text">{{ item.title }}</span>
+          </router-link>
+        </li>
+      </ul>
+    </div>
+
+    <div class="push-bottom">
       <div class="menu">
-        <p class="title">Menu</p>
-
+        <p class="title">Ajuda</p>
         <ul>
-          <li v-for="(item, index) in menuItems" :key="index" :class="{ active: activeMain === index }">
-            
-            <router-link
-              v-if="!item.children"
-              :to="item.route"
-              class="menu-item"
+          <li v-for="(item, index) in menuAccount" :key="index">
+            <router-link 
+              v-if="item.route" 
+              :to="item.route" 
+              class="menu-item" 
               active-class="active"
             >
               <i :class="item.icon"></i>
               <span class="text">{{ item.title }}</span>
             </router-link>
-
-            <div v-else class="menu-item" @click="toggleMain(index)">
+            
+            <div v-else class="menu-item" @click="handleLogout">
               <i :class="item.icon"></i>
               <span class="text">{{ item.title }}</span>
-              <i class="arrow ph-bold ph-caret-down"
-                  :class="{ open: activeMain === index }"></i>
             </div>
-
-            <ul class="sub-menu" v-if="item.children" v-show="activeMain === index">
-              <li v-for="(child, cIndex) in item.children" :key="cIndex">
-                <router-link :to="child.route" class="sub-menu-item" active-class="active">
-                  <span class="text">{{ child.title }}</span>
-                </router-link>
-              </li>
-            </ul>
-
           </li>
         </ul>
       </div>
-
-      <div class="menu">
-        <p class="title">Suporte</p>
-        <ul>
-          <li v-for="(item, index) in menuSuport" :key="index">
-            <router-link :to="item.route" class="menu-item" active-class="active">
-              <i :class="item.icon"></i>
-              <span class="text">{{ item.title }}</span>
-            </router-link>
-          </li>
-        </ul>
-      </div>
-
-      <div class="push-bottom">
-        <div class="menu">
-          <p class="title">Ajuda</p>
-          <ul>
-            <li v-for="(item, index) in menuAccount" :key="index">
-              <router-link :to="item.route" class="menu-item" active-class="active">
-                <i :class="item.icon"></i>
-                <span class="text">{{ item.title }}</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-    
+    </div>
   </div>
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth'; // Importe a Store Pinia
+
 export default {
   data() {
     return {
@@ -121,12 +130,14 @@ export default {
       ],
 
       menuSuport: [
-        { title: "Suporte", icon: "icon ph-bold ph-gear", route: "/suporte" }
+        { title: "Suporte", icon: "icon ph-bold ph-gear", route: "/suporte" },
+        { title: "IA", icon: "icon ph-bold ph-robot", route: "/ia" }
       ],
 
       menuAccount: [
         { title: "Tutoriais em video", icon: "icon ph-bold ph-question", route: "/ajuda" },
-        { title: "Sair", icon: "icon ph-bold ph-sign-out", route: "/logout" }
+        // Item Sair: Sem rota, será tratado com @click no template
+        { title: "Sair", icon: "icon ph-bold ph-sign-out" } 
       ],
     };
   },
@@ -137,13 +148,13 @@ export default {
     },
     toggleMain(index) {
       this.activeMain = this.activeMain === index ? null : index;
+    },
+    // NOVO MÉTODO: Chamado ao clicar no item "Sair"
+    handleLogout() { 
+      const auth = useAuthStore()
+      auth.logout() // Executa a action de logout da sua Pinia Store
     }
   },
-  logout() {
-  const auth = useAuthStore()
-  auth.logout()
-}
-
 };
 </script>
 
@@ -281,13 +292,6 @@ export default {
     background-color: #f6f6f6;
 }
 
-/* Remover ou ajustar a regra antiga se existir para evitar conflito */
-/*
-.menu .sub-menu li a {
-  padding: 10px 8px;
-  font-size: 12px;
-}
-*/
 /* ---------------------------------------------------- */
 
 .menu ul li .icon {
