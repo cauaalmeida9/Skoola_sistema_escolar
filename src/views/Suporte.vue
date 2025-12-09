@@ -3,7 +3,7 @@
 
     <h2 class="faq-title">Suporte & Perguntas Frequentes</h2>
 
-    <!-- 🔍 Barra de Pesquisa personalizada -->
+    <!-- Barra de Pesquisa  -->
     <div class="search-box">
       <span class="icon ph-bold ph-magnifying-glass"></span>
 

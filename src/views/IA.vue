@@ -33,10 +33,6 @@ export default {
 </script>
 
 <style scoped>
-/* ------------------------------------- */
-/* 1. Estilos Gerais e Layout da Tela    */
-/* (MANTIDOS)                            */
-/* ------------------------------------- */
 
 .page-container {
   display: flex;
@@ -84,10 +80,7 @@ export default {
   margin-top: 10px;
 }
 
-/* ------------------------------------- */
-/* 2. Ícone e Animação de Pulsação       */
-/* (AJUSTADO PARA USAR TAG <img>)        */
-/* ------------------------------------- */
+
 
 .ai-icon-container {
   display: inline-flex;
@@ -105,10 +98,9 @@ export default {
 
 /* Novo estilo para o SVG */
 .svg-icon {
-    width: 30px; /* Ajusta o tamanho do ícone SVG dentro do container */
+    width: 30px; 
     height: 40px;
-    /* Se o SVG for colorido, ajuste a cor diretamente no arquivo SVG */
-    /* Caso contrário, se for um SVG monocromático, você pode tentar aplicar filtros */
+
 }
 
 /* Keyframes da Animação de Pulsação (MANTIDOS) */

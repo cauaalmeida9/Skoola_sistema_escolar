@@ -135,8 +135,7 @@ export default {
     },
 
     carregarDados() {
-      // 1. Simula a busca de todos os professores e turmas no Local Storage
-      // Em uma aplicação real, você faria uma chamada API.
+      
       const professores = JSON.parse(localStorage.getItem("professores")) || [];
       this.todasTurmas = JSON.parse(localStorage.getItem("turmas")) || [];
       

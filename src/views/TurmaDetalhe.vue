@@ -294,7 +294,7 @@ export default {
   },
 
   mounted() {
-    // ⭐ MUDANÇA: Agora depende APENAS do parâmetro da rota.
+   
     const registro = this.$route.params.registro;
     this.carregarDados(registro);
    },
@@ -348,7 +348,7 @@ export default {
             .map(matricula => alunosData.find(a => String(a.matricula) === String(matricula)))
               .filter(Boolean);
            } else {
-              this.alunos = []; // Novo ajuste
+              this.alunos = []; 
             }
         // ✅ GARANTE QUE ATIVIDADES É SEMPRE UM ARRAY
         this.turma.atividades = this.turma.atividades || [];
@@ -391,7 +391,7 @@ export default {
       alert(`${novosAlunosData.length} alunos adicionados à turma!`);
     },
     
-    // ⭐ NOVO MÉTODO PARA REMOVER ALUNOS
+    // MÉTODO PARA REMOVER ALUNOS
     removerAlunos() {
         if (this.selectedAlunosToRemove.length === 0) return;
 

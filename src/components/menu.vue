@@ -149,10 +149,10 @@ export default {
     toggleMain(index) {
       this.activeMain = this.activeMain === index ? null : index;
     },
-    // NOVO MÉTODO: Chamado ao clicar no item "Sair"
+    
     handleLogout() { 
       const auth = useAuthStore()
-      auth.logout() // Executa a action de logout da sua Pinia Store
+      auth.logout() 
     }
   },
 };
@@ -234,9 +234,7 @@ export default {
   margin-bottom: 5px;
 }
 
-/* ---------------------------------------------------- */
-/* ESTILOS PRINCIPAIS: Aplicados à classe .menu-item (usada em Home, Pais de Submenus, Suporte, Ajuda, Sair) */
-/* ---------------------------------------------------- */
+
 .menu ul li .menu-item {
   display: flex;
   align-items: center;
@@ -251,17 +249,15 @@ export default {
   cursor: pointer;
 }
 
-/* Estilos Hover/Active para .menu-item */
+
 .menu ul li .menu-item:hover,
-.menu ul li .menu-item.active, /* Item ativo sem submenu */
-.menu ul li.active > .menu-item { /* Item pai ativo com submenu aberto */
+.menu ul li .menu-item.active, 
+.menu ul li.active > .menu-item { 
   color: #000;
   background-color: #f6f6f6;
 }
 
-/* ---------------------------------------------------- */
-/* ESTILOS DO SUB-MENU */
-/* ---------------------------------------------------- */
+
 
 .menu .sub-menu {
   margin-left: 20px;
@@ -270,7 +266,7 @@ export default {
   border-left: 1px solid #f6f6f6;
 }
 
-/* NOVO: Estilos base para os links do sub-menu (classe .sub-menu-item) */
+
 .menu .sub-menu li .sub-menu-item {
     display: flex;
     align-items: center;
@@ -282,17 +278,17 @@ export default {
     padding: 10px 8px;
     border-radius: 8px;
     transition: all 0.3s;
-    /* O flex e o gap são importantes para garantir que o texto não fique colado */
+    
 }
 
-/* NOVO: Estilo Hover/Active para os links do sub-menu */
+
 .menu .sub-menu li .sub-menu-item:hover,
 .menu .sub-menu li .sub-menu-item.active {
     color: #000;
     background-color: #f6f6f6;
 }
 
-/* ---------------------------------------------------- */
+
 
 .menu ul li .icon {
   font-size: 20px;
